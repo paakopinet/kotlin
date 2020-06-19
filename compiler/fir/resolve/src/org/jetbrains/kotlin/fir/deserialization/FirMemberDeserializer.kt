@@ -206,7 +206,7 @@ class FirMemberDeserializer(private val c: FirDeserializationContext) {
                     status = FirDeclarationStatusImpl(visibility, modality)
                     annotations +=
                         c.annotationDeserializer.loadPropertyGetterAnnotations(
-                            c.containerSource, proto, local.nameResolver, local.typeTable, getterFlags
+                            proto, local.nameResolver, local.typeTable, getterFlags
                         )
                     this.symbol = FirPropertyAccessorSymbol()
                 }
@@ -230,7 +230,7 @@ class FirMemberDeserializer(private val c: FirDeserializationContext) {
                     status = FirDeclarationStatusImpl(visibility, modality)
                     annotations +=
                         c.annotationDeserializer.loadPropertySetterAnnotations(
-                            c.containerSource, proto, local.nameResolver, local.typeTable, setterFlags
+                            proto, local.nameResolver, local.typeTable, setterFlags
                         )
                     this.symbol = FirPropertyAccessorSymbol()
                     valueParameters += local.memberDeserializer.valueParameters(
@@ -269,16 +269,9 @@ class FirMemberDeserializer(private val c: FirDeserializationContext) {
 
             resolvePhase = FirResolvePhase.ANALYZED_DEPENDENCIES
             typeParameters += local.typeDeserializer.ownTypeParameters.map { it.fir }
-            annotations +=
-                c.annotationDeserializer.loadPropertyAnnotations(c.containerSource, proto, local.nameResolver, local.typeTable)
-            annotations +=
-                c.annotationDeserializer.loadPropertyBackingFieldAnnotations(
-                    c.containerSource, proto, local.nameResolver, local.typeTable
-                )
-            annotations +=
-                c.annotationDeserializer.loadPropertyDelegatedFieldAnnotations(
-                    c.containerSource, proto, local.nameResolver, local.typeTable
-                )
+            annotations += c.annotationDeserializer.loadPropertyAnnotations(proto, local.nameResolver, local.typeTable)
+            annotations += c.annotationDeserializer.loadPropertyBackingFieldAnnotations(proto, local.nameResolver, local.typeTable)
+            annotations += c.annotationDeserializer.loadPropertyDelegatedFieldAnnotations(proto, local.nameResolver, local.typeTable)
             this.getter = getter
             this.setter = setter
             this.containerSource = c.containerSource
@@ -330,8 +323,7 @@ class FirMemberDeserializer(private val c: FirDeserializationContext) {
                 proto,
                 AbstractAnnotationDeserializer.CallableKind.OTHERS
             )
-            annotations +=
-                c.annotationDeserializer.loadFunctionAnnotations(c.containerSource, proto, local.nameResolver, local.typeTable)
+            annotations += c.annotationDeserializer.loadFunctionAnnotations(proto, local.nameResolver, local.typeTable)
             this.containerSource = c.containerSource
         }
         if (proto.hasContract()) {
@@ -384,8 +376,7 @@ class FirMemberDeserializer(private val c: FirDeserializationContext) {
                 AbstractAnnotationDeserializer.CallableKind.OTHERS,
                 addDefaultValue = classBuilder.symbol.classId == StandardClassIds.Enum
             )
-            annotations +=
-                c.annotationDeserializer.loadConstructorAnnotations(c.containerSource, proto, local.nameResolver, local.typeTable)
+            annotations += c.annotationDeserializer.loadConstructorAnnotations(proto, local.nameResolver, local.typeTable)
         }.build()
     }
 
@@ -419,7 +410,6 @@ class FirMemberDeserializer(private val c: FirDeserializationContext) {
                 isNoinline = Flags.IS_NOINLINE.get(flags)
                 isVararg = proto.varargElementType(c.typeTable) != null
                 annotations += c.annotationDeserializer.loadValueParameterAnnotations(
-                    c.containerSource,
                     callableProto,
                     proto,
                     c.nameResolver,

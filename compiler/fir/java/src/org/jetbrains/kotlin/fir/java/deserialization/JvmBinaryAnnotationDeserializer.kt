@@ -42,33 +42,30 @@ class JvmBinaryAnnotationDeserializer(
     }
 
     override fun loadConstructorAnnotations(
-        containerSource: DeserializedContainerSource?,
         constructorProto: ProtoBuf.Constructor,
         nameResolver: NameResolver,
         typeTable: TypeTable
     ): List<FirAnnotationCall> {
         val signature = getCallableSignature(constructorProto, nameResolver, typeTable) ?: return emptyList()
-        return findJvmBinaryClassAndLoadMemberAnnotations(containerSource, signature)
+        return findJvmBinaryClassAndLoadMemberAnnotations(signature)
     }
 
     override fun loadFunctionAnnotations(
-        containerSource: DeserializedContainerSource?,
         functionProto: ProtoBuf.Function,
         nameResolver: NameResolver,
         typeTable: TypeTable
     ): List<FirAnnotationCall> {
         val signature = getCallableSignature(functionProto, nameResolver, typeTable) ?: return emptyList()
-        return findJvmBinaryClassAndLoadMemberAnnotations(containerSource, signature)
+        return findJvmBinaryClassAndLoadMemberAnnotations(signature)
     }
 
     override fun loadPropertyAnnotations(
-        containerSource: DeserializedContainerSource?,
         propertyProto: ProtoBuf.Property,
         nameResolver: NameResolver,
         typeTable: TypeTable
     ): List<FirAnnotationCall> {
         val signature = getPropertySignature(propertyProto, nameResolver, typeTable, synthetic = true) ?: return emptyList()
-        return findJvmBinaryClassAndLoadMemberAnnotations(containerSource, signature).map {
+        return findJvmBinaryClassAndLoadMemberAnnotations(signature).map {
             buildAnnotationCall {
                 annotationTypeRef = it.annotationTypeRef
                 argumentList = it.argumentList
@@ -81,7 +78,6 @@ class JvmBinaryAnnotationDeserializer(
         get() = JvmAbi.DELEGATED_PROPERTY_NAME_SUFFIX in this.signature
 
     override fun loadPropertyBackingFieldAnnotations(
-        containerSource: DeserializedContainerSource?,
         propertyProto: ProtoBuf.Property,
         nameResolver: NameResolver,
         typeTable: TypeTable
@@ -90,7 +86,7 @@ class JvmBinaryAnnotationDeserializer(
         if (signature.isDelegated) {
             return emptyList()
         }
-        return findJvmBinaryClassAndLoadMemberAnnotations(containerSource, signature).map {
+        return findJvmBinaryClassAndLoadMemberAnnotations(signature).map {
             buildAnnotationCall {
                 annotationTypeRef = it.annotationTypeRef
                 argumentList = it.argumentList
@@ -100,7 +96,6 @@ class JvmBinaryAnnotationDeserializer(
     }
 
     override fun loadPropertyDelegatedFieldAnnotations(
-        containerSource: DeserializedContainerSource?,
         propertyProto: ProtoBuf.Property,
         nameResolver: NameResolver,
         typeTable: TypeTable
@@ -109,7 +104,7 @@ class JvmBinaryAnnotationDeserializer(
         if (!signature.isDelegated) {
             return emptyList()
         }
-        return findJvmBinaryClassAndLoadMemberAnnotations(containerSource, signature).map {
+        return findJvmBinaryClassAndLoadMemberAnnotations(signature).map {
             buildAnnotationCall {
                 annotationTypeRef = it.annotationTypeRef
                 argumentList = it.argumentList
@@ -119,25 +114,23 @@ class JvmBinaryAnnotationDeserializer(
     }
 
     override fun loadPropertyGetterAnnotations(
-        containerSource: DeserializedContainerSource?,
         propertyProto: ProtoBuf.Property,
         nameResolver: NameResolver,
         typeTable: TypeTable,
         getterFlags: Int
     ): List<FirAnnotationCall> {
         val signature = getCallableSignature(propertyProto, nameResolver, typeTable, CallableKind.PROPERTY_GETTER) ?: return emptyList()
-        return findJvmBinaryClassAndLoadMemberAnnotations(containerSource, signature)
+        return findJvmBinaryClassAndLoadMemberAnnotations(signature)
     }
 
     override fun loadPropertySetterAnnotations(
-        containerSource: DeserializedContainerSource?,
         propertyProto: ProtoBuf.Property,
         nameResolver: NameResolver,
         typeTable: TypeTable,
         setterFlags: Int
     ): List<FirAnnotationCall> {
         val signature = getCallableSignature(propertyProto, nameResolver, typeTable, CallableKind.PROPERTY_SETTER) ?: return emptyList()
-        return findJvmBinaryClassAndLoadMemberAnnotations(containerSource, signature)
+        return findJvmBinaryClassAndLoadMemberAnnotations(signature)
     }
 
     override fun loadValueParameterAnnotations(
@@ -152,7 +145,7 @@ class JvmBinaryAnnotationDeserializer(
         val methodSignature = getCallableSignature(callableProto, nameResolver, typeTable, kind) ?: return emptyList()
         val index = parameterIndex + computeJvmParameterIndexShift(callableProto)
         val paramSignature = MemberSignature.fromMethodSignatureAndParameterIndex(methodSignature, index)
-        return findJvmBinaryClassAndLoadMemberAnnotations(containerSource, paramSignature)
+        return findJvmBinaryClassAndLoadMemberAnnotations(paramSignature)
     }
 
     /*
@@ -229,10 +222,7 @@ class JvmBinaryAnnotationDeserializer(
         return null
     }
 
-    private fun findJvmBinaryClassAndLoadMemberAnnotations(
-        containerSource: DeserializedContainerSource?,
-        memberSignature: MemberSignature
-    ): List<FirAnnotationCall> {
+    private fun findJvmBinaryClassAndLoadMemberAnnotations(memberSignature: MemberSignature): List<FirAnnotationCall> {
         return annotationInfo.memberAnnotations[memberSignature] ?: emptyList()
     }
 }

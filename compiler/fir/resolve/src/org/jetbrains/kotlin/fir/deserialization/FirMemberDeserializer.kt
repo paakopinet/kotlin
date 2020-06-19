@@ -10,7 +10,9 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.builder.*
-import org.jetbrains.kotlin.fir.declarations.impl.*
+import org.jetbrains.kotlin.fir.declarations.impl.FirDeclarationStatusImpl
+import org.jetbrains.kotlin.fir.declarations.impl.FirDefaultPropertyGetter
+import org.jetbrains.kotlin.fir.declarations.impl.FirDefaultPropertySetter
 import org.jetbrains.kotlin.fir.expressions.FirExpression
 import org.jetbrains.kotlin.fir.expressions.builder.buildExpressionStub
 import org.jetbrains.kotlin.fir.symbols.CallableId
@@ -27,7 +29,6 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.protobuf.MessageLite
 import org.jetbrains.kotlin.serialization.deserialization.ProtoEnumFlags
-import org.jetbrains.kotlin.serialization.deserialization.builtins.BuiltInSerializerProtocol
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 import org.jetbrains.kotlin.serialization.deserialization.getName
 
@@ -268,7 +269,16 @@ class FirMemberDeserializer(private val c: FirDeserializationContext) {
 
             resolvePhase = FirResolvePhase.ANALYZED_DEPENDENCIES
             typeParameters += local.typeDeserializer.ownTypeParameters.map { it.fir }
-            annotations += c.annotationDeserializer.loadPropertyAnnotations(proto, local.nameResolver)
+            annotations +=
+                c.annotationDeserializer.loadPropertyAnnotations(c.containerSource, proto, local.nameResolver, local.typeTable)
+            annotations +=
+                c.annotationDeserializer.loadPropertyBackingFieldAnnotations(
+                    c.containerSource, proto, local.nameResolver, local.typeTable
+                )
+            annotations +=
+                c.annotationDeserializer.loadPropertyDelegatedFieldAnnotations(
+                    c.containerSource, proto, local.nameResolver, local.typeTable
+                )
             this.getter = getter
             this.setter = setter
             this.containerSource = c.containerSource

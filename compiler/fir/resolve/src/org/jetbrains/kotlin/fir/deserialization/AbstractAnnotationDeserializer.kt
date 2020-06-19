@@ -6,13 +6,17 @@
 package org.jetbrains.kotlin.fir.deserialization
 
 import org.jetbrains.kotlin.descriptors.ClassKind
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirConstructor
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.collectEnumEntries
-import org.jetbrains.kotlin.fir.diagnostics.DiagnosticKind
 import org.jetbrains.kotlin.fir.diagnostics.ConeSimpleDiagnostic
-import org.jetbrains.kotlin.fir.expressions.*
+import org.jetbrains.kotlin.fir.diagnostics.DiagnosticKind
+import org.jetbrains.kotlin.fir.expressions.FirAnnotationCall
+import org.jetbrains.kotlin.fir.expressions.FirConstKind
+import org.jetbrains.kotlin.fir.expressions.FirExpression
+import org.jetbrains.kotlin.fir.expressions.buildUnaryArgumentList
 import org.jetbrains.kotlin.fir.expressions.builder.*
 import org.jetbrains.kotlin.fir.references.builder.buildErrorNamedReference
 import org.jetbrains.kotlin.fir.references.builder.buildResolvedNamedReference
@@ -31,7 +35,6 @@ import org.jetbrains.kotlin.metadata.deserialization.Flags
 import org.jetbrains.kotlin.metadata.deserialization.NameResolver
 import org.jetbrains.kotlin.metadata.deserialization.TypeTable
 import org.jetbrains.kotlin.protobuf.MessageLite
-import org.jetbrains.kotlin.serialization.deserialization.ProtoContainer
 import org.jetbrains.kotlin.serialization.deserialization.builtins.BuiltInSerializerProtocol
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 import org.jetbrains.kotlin.serialization.deserialization.getClassId
@@ -43,6 +46,7 @@ abstract class AbstractAnnotationDeserializer(
     protected val protocol = BuiltInSerializerProtocol
 
     enum class CallableKind {
+        PROPERTY,
         PROPERTY_GETTER,
         PROPERTY_SETTER,
         OTHERS
@@ -65,10 +69,33 @@ abstract class AbstractAnnotationDeserializer(
         return annotations.map { deserializeAnnotation(it, nameResolver) }
     }
 
-    fun loadPropertyAnnotations(propertyProto: ProtoBuf.Property, nameResolver: NameResolver): List<FirAnnotationCall> {
+    open fun loadPropertyAnnotations(
+        containerSource: DeserializedContainerSource?,
+        propertyProto: ProtoBuf.Property,
+        nameResolver: NameResolver,
+        typeTable: TypeTable
+    ): List<FirAnnotationCall> {
         if (!Flags.HAS_ANNOTATIONS.get(propertyProto.flags)) return emptyList()
         val annotations = propertyProto.getExtension(protocol.propertyAnnotation).orEmpty()
-        return annotations.map { deserializeAnnotation(it, nameResolver) }
+        return annotations.map { deserializeAnnotation(it, nameResolver, AnnotationUseSiteTarget.PROPERTY) }
+    }
+
+    open fun loadPropertyBackingFieldAnnotations(
+        containerSource: DeserializedContainerSource?,
+        propertyProto: ProtoBuf.Property,
+        nameResolver: NameResolver,
+        typeTable: TypeTable
+    ): List<FirAnnotationCall> {
+        return emptyList()
+    }
+
+    open fun loadPropertyDelegatedFieldAnnotations(
+        containerSource: DeserializedContainerSource?,
+        propertyProto: ProtoBuf.Property,
+        nameResolver: NameResolver,
+        typeTable: TypeTable
+    ): List<FirAnnotationCall> {
+        return emptyList()
     }
 
     open fun loadPropertyGetterAnnotations(
@@ -80,7 +107,7 @@ abstract class AbstractAnnotationDeserializer(
     ): List<FirAnnotationCall> {
         if (!Flags.HAS_ANNOTATIONS.get(getterFlags)) return emptyList()
         val annotations = propertyProto.getExtension(protocol.propertyGetterAnnotation).orEmpty()
-        return annotations.map { deserializeAnnotation(it, nameResolver) }
+        return annotations.map { deserializeAnnotation(it, nameResolver, AnnotationUseSiteTarget.PROPERTY_GETTER) }
     }
 
     open fun loadPropertySetterAnnotations(
@@ -92,7 +119,7 @@ abstract class AbstractAnnotationDeserializer(
     ): List<FirAnnotationCall> {
         if (!Flags.HAS_ANNOTATIONS.get(setterFlags)) return emptyList()
         val annotations = propertyProto.getExtension(protocol.propertySetterAnnotation).orEmpty()
-        return annotations.map { deserializeAnnotation(it, nameResolver) }
+        return annotations.map { deserializeAnnotation(it, nameResolver, AnnotationUseSiteTarget.PROPERTY_SETTER) }
     }
 
     open fun loadConstructorAnnotations(
@@ -122,7 +149,11 @@ abstract class AbstractAnnotationDeserializer(
 
     abstract fun loadTypeAnnotations(typeProto: ProtoBuf.Type, nameResolver: NameResolver): List<FirAnnotationCall>
 
-    fun deserializeAnnotation(proto: ProtoBuf.Annotation, nameResolver: NameResolver): FirAnnotationCall {
+    fun deserializeAnnotation(
+        proto: ProtoBuf.Annotation,
+        nameResolver: NameResolver,
+        useSiteTarget: AnnotationUseSiteTarget? = null
+    ): FirAnnotationCall {
         val classId = nameResolver.getClassId(proto.id)
         val lookupTag = ConeClassLikeLookupTagImpl(classId)
         val symbol = lookupTag.toSymbol(session)
@@ -155,6 +186,9 @@ abstract class AbstractAnnotationDeserializer(
             } ?: buildErrorTypeRef { diagnostic = ConeUnresolvedSymbolError(classId) }
             argumentList = buildArgumentList {
                 this.arguments += arguments
+            }
+            useSiteTarget?.let {
+                this.useSiteTarget = it
             }
         }
     }

@@ -5,18 +5,21 @@
 
 package kotlin.coroutines.cancellation
 
+import kotlin.internal.InlineOnly
+
 @ExperimentalStdlibApi
 @SinceKotlin("1.4")
 public actual typealias CancellationException = java.util.concurrent.CancellationException
 
+@InlineOnly
 @ExperimentalStdlibApi
 @SinceKotlin("1.4")
-public actual fun CancellationException(message: String?, cause: Throwable?): CancellationException {
+public actual inline fun CancellationException(message: String?, cause: Throwable?): CancellationException {
     return CancellationException(message).also { it.initCause(cause) }
 }
-
+@InlineOnly
 @ExperimentalStdlibApi
 @SinceKotlin("1.4")
-public actual fun CancellationException(cause: Throwable?): CancellationException {
+public actual inline fun CancellationException(cause: Throwable?): CancellationException {
     return CancellationException().also { it.initCause(cause) }
 }

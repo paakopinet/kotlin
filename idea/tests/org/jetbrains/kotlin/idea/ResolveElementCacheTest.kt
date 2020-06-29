@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.idea
 
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.psi.PsiDocumentManager
 import junit.framework.TestCase
 import org.intellij.lang.annotations.Language
@@ -291,12 +292,12 @@ class ResolveElementCacheTest : AbstractResolveElementCacheTest() {
     }
 
     fun testIncompleteFileAnnotationList() {
-        val file = myFixture.configureByText(
-            "Test.kt", """
+        val file = configureWithKotlin(
+            """
         @file
         import some.hello
         """
-        ) as KtFile
+        )
 
         val fileAnnotationList = file.fileAnnotationList!!
         fileAnnotationList.analyze(BodyResolveMode.PARTIAL)
@@ -336,49 +337,55 @@ class ResolveElementCacheTest : AbstractResolveElementCacheTest() {
         assertEmpty(context.diagnostics.all())
     }
 
-    private fun configureWithKotlin(@Language("kotlin") text: String): KtFile {
-        return myFixture.configureByText("Test.kt", text.trimIndent()) as KtFile
+    private fun configureWithKotlin(@Language("kotlin") text: String, closeEditor: Boolean = true): KtFile {
+        val file = myFixture.configureByText("Test.kt", text.trimIndent()) as KtFile
+        if (closeEditor) closeEditor()
+        return file
     }
 
     fun testPrimaryConstructorParameterFullAnalysis() {
-        myFixture.configureByText(
-            "Test.kt", """
+        configureWithKotlin(
+            """
         class My(param: Int = <caret>0)
-        """
-        ) as KtFile
+        """, false
+        )
 
         val defaultValue = myFixture.elementByOffset.getParentOfType<KtExpression>(true)!!
         // Kept to preserve correct behaviour of analyzeFully() on class internal elements
+        closeEditor()
 
         @Suppress("DEPRECATION")
         defaultValue.analyzeWithAllCompilerChecks()
     }
 
     fun testPrimaryConstructorAnnotationFullAnalysis() {
-        myFixture.configureByText(
-            "Test.kt", """
+        configureWithKotlin(
+            """
         class My @Deprecated("<caret>xyz") protected constructor(param: Int)
-        """
-        ) as KtFile
+        """, false
+        )
 
         val annotationArguments = myFixture.elementByOffset.getParentOfType<KtValueArgumentList>(true)!!
+        closeEditor()
 
         @Suppress("DEPRECATION")
         annotationArguments.analyzeWithAllCompilerChecks()
     }
 
     fun testFunctionParameterAnnotation() {
-        val file = myFixture.configureByText(
-            "Test.kt", """
+        val file = configureWithKotlin(
+            """
         annotation class Ann
         fun foo(@<caret>Ann p: Int) {
             bar()
         }
-        """
-        ) as KtFile
+        """, false
+        )
 
         val function = (file.declarations[1]) as KtFunction
         val typeRef = myFixture.elementByOffset.getParentOfType<KtTypeReference>(true)!!
+
+        closeEditor()
 
         val bindingContext = typeRef.analyze(BodyResolveMode.PARTIAL)
 
@@ -391,14 +398,16 @@ class ResolveElementCacheTest : AbstractResolveElementCacheTest() {
     }
 
     fun testPrimaryConstructorParameterAnnotation() {
-        myFixture.configureByText(
-            "Test.kt", """
+        configureWithKotlin(
+            """
         annotation class Ann
         class X(@set:<caret>Ann var p: Int)
-        """
-        ) as KtFile
+        """, false
+        )
 
         val typeRef = myFixture.elementByOffset.getParentOfType<KtTypeReference>(true)!!
+
+        closeEditor()
 
         val bindingContext = typeRef.analyze(BodyResolveMode.PARTIAL)
 
@@ -408,20 +417,20 @@ class ResolveElementCacheTest : AbstractResolveElementCacheTest() {
     }
 
     fun testSecondaryConstructorParameterAnnotation() {
-        val file = myFixture.configureByText(
-            "Test.kt", """
+        val file = configureWithKotlin(
+            """
         annotation class Ann
         class X {
             constructor(@<caret>Ann p: Int) {
                 foo()
             }
         }
-        """
-        ) as KtFile
+        """, false
+        )
 
         val constructor = ((file.declarations[1]) as KtClass).secondaryConstructors[0]
         val typeRef = myFixture.elementByOffset.getParentOfType<KtTypeReference>(true)!!
-
+        closeEditor()
         val bindingContext = typeRef.analyze(BodyResolveMode.PARTIAL)
 
         val referenceExpr = (typeRef.typeElement as KtUserType).referenceExpression
@@ -476,15 +485,15 @@ class ResolveElementCacheTest : AbstractResolveElementCacheTest() {
     }
 
     fun testKT14376() {
-        val file = myFixture.configureByText("Test.kt", "object Obj(val x: Int)") as KtFile
+        val file = configureWithKotlin("object Obj(val x: Int)")
         val nameRef = file.findDescendantOfType<KtNameReferenceExpression>()!!
         val bindingContext = nameRef.analyze(BodyResolveMode.PARTIAL)
         assert(bindingContext[BindingContext.REFERENCE_TARGET, nameRef]?.fqNameSafe?.asString() == "kotlin.Int")
     }
 
     fun testResolveDefaultValueInPrimaryConstructor() {
-        myFixture.configureByText(
-            "Test.kt", """
+        configureWithKotlin(
+            """
         class ClassA<N> (
                 messenger: ClassB<N> = object : ClassB<N> {
                     override fun methodOne<caret>(param: List<N>) {
@@ -495,10 +504,12 @@ class ResolveElementCacheTest : AbstractResolveElementCacheTest() {
         interface ClassB<N> {
             fun methodOne(param: List<N>)
         }
-        """
-        ) as KtFile
+        """, false
+        )
 
         val methodOne = myFixture.elementByOffset.getParentOfType<KtFunction>(true)!!
+
+        closeEditor()
 
         val bindingContext = methodOne.analyze(BodyResolveMode.FULL)
 
@@ -524,10 +535,12 @@ class ResolveElementCacheTest : AbstractResolveElementCacheTest() {
             ?: error("Cannot find first expression in script")
         val statement2 = (script.blockExpression.statements.last() as? KtScriptInitializer)?.body
             ?: error("Cannot find last expression in script")
+        val caret = myFixture.elementByOffset.getParentOfType<KtExpression>(true) ?: error("Cannot find element at caret")
+
+        closeEditor()
+
         val bindingContext1Before = statement1.analyze()
         val bindingContext2Before = statement2.analyze()
-
-        val caret = myFixture.elementByOffset.getParentOfType<KtExpression>(true) ?: error("Cannot find element at caret")
 
         myFixture.project.executeWriteCommand("") {
             caret.parent.addAfter(KtPsiFactory(project).createWhiteSpace(), caret)

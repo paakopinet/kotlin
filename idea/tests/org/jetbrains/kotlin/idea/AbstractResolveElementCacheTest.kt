@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.idea
 
+import com.intellij.openapi.fileEditor.FileEditorManager
 import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.idea.test.KotlinLightProjectDescriptor
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
@@ -12,6 +13,10 @@ import org.jetbrains.kotlin.psi.*
 
 abstract class AbstractResolveElementCacheTest : KotlinLightCodeInsightFixtureTestCase() {
     override fun getProjectDescriptor(): KotlinLightProjectDescriptor = KotlinLightProjectDescriptor.INSTANCE
+
+    fun closeEditor() {
+        FileEditorManager.getInstance(myFixture.project).closeFile(file.virtualFile)
+    }
 
     companion object {
         //language=kotlin
@@ -45,6 +50,7 @@ class C(param1: String = "", param2: Int = 0) {
 
     protected fun doTest(handler: Data.() -> Unit) {
         val file = myFixture.configureByText("Test.kt", FILE_TEXT) as KtFile
+        closeEditor()
         val data = extractData(file)
         myFixture.project.executeWriteCommand("") { data.handler() }
     }

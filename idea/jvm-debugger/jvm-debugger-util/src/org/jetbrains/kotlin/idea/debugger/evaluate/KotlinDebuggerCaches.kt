@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeAndGetResult
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeWithAllCompilerChecks
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.core.util.runInReadActionWithWriteActionPriorityWithPCE
 import org.jetbrains.kotlin.idea.debugger.BinaryCacheKey
 import org.jetbrains.kotlin.idea.debugger.BytecodeDebugInfo
@@ -45,9 +46,11 @@ import org.jetbrains.kotlin.idea.debugger.createWeakBytecodeDebugInfoStorage
 import org.jetbrains.kotlin.idea.debugger.evaluate.compilation.CompiledDataDescriptor
 import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.idea.util.runReadActionInSmartMode
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtCodeFragment
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import org.jetbrains.kotlin.types.KotlinType
 import java.util.*
@@ -199,7 +202,11 @@ class KotlinDebuggerCaches(project: Project) {
 
         private fun createTypeMapperForLibraryFile(element: KtElement, file: KtFile): KotlinTypeMapper =
             runInReadActionWithWriteActionPriorityWithPCE {
-                createTypeMapper(file, element.analyzeAndGetResult())
+                val resolutionFacade = element.getResolutionFacade()
+                val innerCallExpressions = element.collectDescendantsOfType<KtCallExpression>()
+                val context = resolutionFacade.analyze(listOf(element) + innerCallExpressions, BodyResolveMode.FULL)
+                val analysisResult = AnalysisResult.success( context, resolutionFacade.moduleDescriptor)
+                createTypeMapper(file, analysisResult)
             }
 
         private fun createTypeMapperForSourceFile(file: KtFile): KotlinTypeMapper =

@@ -126,7 +126,6 @@ abstract class AbstractAnnotationDeserializer(
     }
 
     open fun loadValueParameterAnnotations(
-        containerSource: DeserializedContainerSource?,
         callableProto: MessageLite,
         valueParameterProto: ProtoBuf.ValueParameter,
         nameResolver: NameResolver,

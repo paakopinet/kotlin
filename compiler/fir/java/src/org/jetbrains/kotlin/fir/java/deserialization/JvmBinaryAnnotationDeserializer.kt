@@ -134,7 +134,6 @@ class JvmBinaryAnnotationDeserializer(
     }
 
     override fun loadValueParameterAnnotations(
-        containerSource: DeserializedContainerSource?,
         callableProto: MessageLite,
         valueParameterProto: ProtoBuf.ValueParameter,
         nameResolver: NameResolver,

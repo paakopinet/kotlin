@@ -186,8 +186,8 @@ class AnalyzerWithCompilerReport(
             if (diagnostics.any { it.factory == Errors.IR_COMPILED_CLASS }) {
                 messageCollector.report(
                     ERROR,
-                    "Classes compiled by a new Kotlin compiler backend were found in dependencies. " +
-                            "Remove them from the classpath or use '-Xallow-jvm-ir-dependencies' to suppress errors"
+                    "Classes compiled by the new experimental JVM IR backend were found in dependencies. " +
+                            "Remove them from the classpath, enable the new backend with `-Xuse-ir`, or use '-Xallow-jvm-ir-dependencies' to suppress errors"
                 )
             }
 

@@ -81,7 +81,7 @@ class K2JVMCompilerArguments : CommonCompilerArguments() {
     // Advanced options
 
     @GradleOption(DefaultValues.BooleanFalseDefault::class)
-    @Argument(value = "-Xuse-ir", description = "Use the IR backend")
+    @Argument(value = "-Xuse-ir", description = "Use the new experimental JVM IR backend")
     var useIR: Boolean by FreezableVar(false)
 
     @Argument(value = "-Xno-use-ir", description = "Do not use the IR backend. Useful for a custom-built compiler where IR backend is enabled by default")
@@ -95,14 +95,14 @@ class K2JVMCompilerArguments : CommonCompilerArguments() {
 
     @Argument(
         value = "-Xallow-jvm-ir-dependencies",
-        description = "When not using the IR backend, do not report errors on those classes in dependencies, " +
+        description = "When not using the new experimental IR backend, do not report errors on those classes in dependencies, " +
                 "which were compiled by the IR backend"
     )
     var allowJvmIrDependencies: Boolean by FreezableVar(false)
 
     @Argument(
         value = "-Xir-binary-with-stable-abi",
-        description = "When using the IR backend, produce binaries which can be read by non-IR backend.\n" +
+        description = "When using the new experimental IR backend, produce binaries which can be read by non-IR backend.\n" +
                 "The author is responsible for verifying that the resulting binaries do indeed have the correct ABI"
     )
     var isIrWithStableAbi: Boolean by FreezableVar(false)

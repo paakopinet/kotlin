@@ -361,6 +361,23 @@ fun ConeKotlinType.varargElementType(session: FirSession): ConeKotlinType {
 }
 
 fun FirTypeRef.isExtensionFunctionType(session: FirSession): Boolean {
+    val oldResult = isExtensionFunctionTypeOld(session)
+    val newResult = isExtensionFunctionTypeNew(session)
+    if (oldResult && !newResult) {
+        val oldResult = isExtensionFunctionTypeOld(session)
+        val newResult = isExtensionFunctionTypeNew(session)
+        throw IllegalStateException("old = $oldResult; new = $newResult")
+//        val x = 1
+    }
+    return oldResult
+}
+
+private fun FirTypeRef.isExtensionFunctionTypeNew(session: FirSession): Boolean {
+    val type = this.coneTypeSafe<ConeKotlinType>()?.lowerBoundIfFlexible()?.fullyExpandedType(session) ?: return false
+    return type.attributes.extensionFunctionType != null
+}
+
+private fun FirTypeRef.isExtensionFunctionTypeOld(session: FirSession): Boolean {
     if (annotations.any(FirAnnotationCall::isExtensionFunctionAnnotationCall)) return true
 
     if (this !is FirResolvedTypeRef) return false

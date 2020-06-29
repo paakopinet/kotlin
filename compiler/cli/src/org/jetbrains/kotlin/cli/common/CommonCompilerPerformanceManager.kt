@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.cli.common
 
 import org.jetbrains.kotlin.util.PerformanceCounter
 import java.io.File
+import java.lang.management.GarbageCollectorMXBean
 import java.lang.management.ManagementFactory
 import java.util.concurrent.TimeUnit
 

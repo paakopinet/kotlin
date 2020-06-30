@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.fir.declarations.FirValueParameter
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.coneTypeSafe
-import org.jetbrains.kotlin.fir.types.coneTypeUnsafe
+import org.jetbrains.kotlin.fir.types.type
 import org.jetbrains.kotlin.fir.visitors.FirDefaultVisitor
 
 class ConeEffectExtractor(
@@ -116,7 +116,7 @@ class ConeEffectExtractor(
         val symbol = qualifiedAccessExpression.toResolvedCallableSymbol() ?: return null
         val parameter = symbol.fir as? FirValueParameter ?: return null
         val index = valueParameters.indexOf(parameter).takeUnless { it < 0 } ?: return null
-        val type = parameter.returnTypeRef.coneTypeUnsafe<ConeKotlinType>()
+        val type = parameter.returnTypeRef.type
 
         val name = parameter.name.asString()
         return toValueParameterReference(type, index, name)

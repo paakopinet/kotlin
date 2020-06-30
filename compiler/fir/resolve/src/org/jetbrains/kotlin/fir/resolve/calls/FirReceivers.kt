@@ -75,7 +75,7 @@ sealed class ImplicitReceiverValue<S : AbstractFirBasedSymbol<*>>(
     internal fun replaceType(type: ConeKotlinType) {
         if (type == this.type) return
         this.type = type
-        receiverExpression = if (type == originalReceiverExpression.typeRef.coneTypeUnsafe()) {
+        receiverExpression = if (type == originalReceiverExpression.typeRef.type) {
             originalReceiverExpression
         } else {
             buildExpressionWithSmartcast {

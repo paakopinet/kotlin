@@ -94,7 +94,7 @@ internal sealed class CheckReceivers : ResolutionStage() {
         override fun Candidate.getReceiverType(): ConeKotlinType? {
             val callableSymbol = symbol as? FirCallableSymbol<*> ?: return null
             val callable = callableSymbol.fir
-            val receiverType = callable.receiverTypeRef?.coneTypeUnsafe<ConeKotlinType>()
+            val receiverType = callable.receiverTypeRef?.type
             if (receiverType != null) return receiverType
             val returnTypeRef = callable.returnTypeRef as? FirResolvedTypeRef ?: return null
             if (!returnTypeRef.isExtensionFunctionType(bodyResolveComponents.session)) return null

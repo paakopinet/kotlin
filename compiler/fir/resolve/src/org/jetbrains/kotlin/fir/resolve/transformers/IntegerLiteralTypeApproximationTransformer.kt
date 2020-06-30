@@ -113,8 +113,8 @@ class IntegerLiteralTypeApproximationTransformer(
         val expectedType: ConeKotlinType? = when {
             !leftIsIlt && !rightIsIlt -> return operatorCall.compose()
             leftIsIlt && rightIsIlt -> null
-            leftIsIlt -> rightArgument.typeRef.coneTypeUnsafe()
-            rightIsIlt -> leftArgument.typeRef.coneTypeUnsafe()
+            leftIsIlt -> rightArgument.typeRef.type
+            rightIsIlt -> leftArgument.typeRef.type
             else -> throw IllegalStateException()
         }
 
@@ -176,7 +176,7 @@ class IntegerOperatorsTypeUpdater(private val approximator: IntegerLiteralTypeAp
             }
             else -> {
                 // TODO: handle overflow
-                when (val argumentType = functionCall.argument.typeRef.coneTypeUnsafe<ConeKotlinType>()) {
+                when (val argumentType = functionCall.argument.typeRef.type) {
                     is ConeIntegerLiteralType -> {
                         val argumentValue = argumentType.value
                         val divisionByZero = argumentValue == 0L

@@ -71,7 +71,7 @@ fun ConeKotlinType.canHaveUndefinedNullability(): Boolean {
 
 private fun ConeTypeParameterType.hasNotNullUpperBound(): Boolean {
     return lookupTag.typeParameterSymbol.fir.bounds.any {
-        val boundType = it.coneTypeUnsafe<ConeKotlinType>()
+        val boundType = it.type
         if (boundType is ConeTypeParameterType) {
             boundType.hasNotNullUpperBound()
         } else {

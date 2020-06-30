@@ -172,7 +172,7 @@ open class FirDeclarationsResolveTransformer(transformer: FirBodyResolveTransfor
                     type = (typeRef.type as ConeClassLikeType).lookupTag.constructClassType(
                         typeArguments.mapIndexed { index, argument ->
                             when (index) {
-                                typeArguments.lastIndex -> property.returnTypeRef.coneTypeUnsafe()
+                                typeArguments.lastIndex -> property.returnTypeRef.type
                                 0 -> extensionType ?: dispatchType
                                 else -> dispatchType
                             } ?: argument
@@ -315,7 +315,7 @@ open class FirDeclarationsResolveTransformer(transformer: FirBodyResolveTransfor
 
         val receiverTypeRef = owner.receiverTypeRef
         if (receiverTypeRef != null) {
-            withLabelAndReceiverType(owner.name, owner, receiverTypeRef.coneTypeUnsafe()) {
+            withLabelAndReceiverType(owner.name, owner, receiverTypeRef.type) {
                 transformFunctionWithGivenSignature(accessor, resolutionMode)
             }
         } else {
@@ -462,7 +462,7 @@ open class FirDeclarationsResolveTransformer(transformer: FirBodyResolveTransfor
             withFullBodyResolve {
                 val receiverTypeRef = simpleFunction.receiverTypeRef
                 if (receiverTypeRef != null) {
-                    withLabelAndReceiverType(simpleFunction.name, simpleFunction, receiverTypeRef.coneTypeUnsafe()) {
+                    withLabelAndReceiverType(simpleFunction.name, simpleFunction, receiverTypeRef.type) {
                         transformFunctionWithGivenSignature(simpleFunction, ResolutionMode.ContextIndependent)
                     }
                 } else {
@@ -658,7 +658,7 @@ open class FirDeclarationsResolveTransformer(transformer: FirBodyResolveTransfor
                 )
                 af.transformSingle(writer, expectedTypeRef.coneTypeSafe<ConeKotlinType>()?.toExpectedType())
                 val returnTypes = dataFlowAnalyzer.returnExpressionsOfAnonymousFunction(af)
-                    .mapNotNull { (it as? FirExpression)?.resultType?.coneTypeUnsafe() }
+                    .mapNotNull { (it as? FirExpression)?.resultType?.type }
                 af.replaceReturnTypeRef(
                     af.returnTypeRef.resolvedTypeFromPrototype(
                         inferenceComponents.ctx.commonSuperTypeOrNull(returnTypes) ?: session.builtinTypes.unitType.type

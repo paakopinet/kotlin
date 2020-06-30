@@ -18,15 +18,16 @@ class CancellationExceptionTest {
         val message = "message"
         checkException(CancellationException(message, cause), cause, message)
         checkException(CancellationException(message, null), null, message)
-        checkException(CancellationException(cause), cause, null)
+        checkException(CancellationException(cause), cause, cause.defaultMessage())
         checkException(CancellationException(message), null, message)
         checkException(CancellationException(null, cause), cause, null)
-        checkException(CancellationException(cause = cause), cause, null)
+        checkException(CancellationException(cause = cause), cause, cause.defaultMessage())
         // does not work on JVM because of typealias
 //      checkException(CancellationException(message = message), null, message)
         checkException(CancellationException(), null, null)
-
     }
+
+    private fun Throwable?.defaultMessage() = toString()
 
     private fun checkException(e: CancellationException, expectedCause: Throwable?, expectedMessage: String?) {
         assertEquals(expectedCause, e.cause)

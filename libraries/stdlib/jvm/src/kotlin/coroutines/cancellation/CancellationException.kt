@@ -21,5 +21,5 @@ public actual inline fun CancellationException(message: String?, cause: Throwabl
 @ExperimentalStdlibApi
 @SinceKotlin("1.4")
 public actual inline fun CancellationException(cause: Throwable?): CancellationException {
-    return CancellationException().also { it.initCause(cause) }
+    return CancellationException(cause?.toString()).also { it.initCause(cause) }
 }

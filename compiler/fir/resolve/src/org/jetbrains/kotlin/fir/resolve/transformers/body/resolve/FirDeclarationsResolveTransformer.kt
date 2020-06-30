@@ -161,7 +161,7 @@ open class FirDeclarationsResolveTransformer(transformer: FirBodyResolveTransfor
         val typeRef = propertyReferenceAccess.typeRef
         if (typeRef is FirResolvedTypeRef && property.returnTypeRef is FirResolvedTypeRef) {
             val typeArguments = (typeRef.type as ConeClassLikeType).typeArguments
-            val extensionType = property.receiverTypeRef?.coneTypeSafe<ConeKotlinType>()
+            val extensionType = property.receiverTypeRef?.type
             val dispatchType = containingClass?.let { containingClass ->
                 containingClass.symbol.constructStarProjectedType(containingClass.typeParameters.size)
             }
@@ -552,7 +552,7 @@ open class FirDeclarationsResolveTransformer(transformer: FirBodyResolveTransfor
 
         dataFlowAnalyzer.enterValueParameter(valueParameter)
         val transformedValueParameter =
-            valueParameter.transformInitializer(integerLiteralTypeApproximator, valueParameter.returnTypeRef.coneTypeSafe())
+            valueParameter.transformInitializer(integerLiteralTypeApproximator, valueParameter.returnTypeRef.type)
 
         val result = transformDeclarationContent(
             transformedValueParameter,
@@ -644,7 +644,7 @@ open class FirDeclarationsResolveTransformer(transformer: FirBodyResolveTransfor
                 af = af.transformValueParameters(ImplicitToErrorTypeTransformer, null)
                 val bodyExpectedType = returnTypeRefFromResolvedAtom ?: expectedTypeRef
                 val labelName = af.label?.name?.let { Name.identifier(it) }
-                withLabelAndReceiverType(labelName, af, af.receiverTypeRef?.coneTypeSafe()) {
+                withLabelAndReceiverType(labelName, af, af.receiverTypeRef?.type) {
                     af = transformFunction(af, withExpectedType(bodyExpectedType)).single as FirAnonymousFunction
                 }
                 // To separate function and separate commit

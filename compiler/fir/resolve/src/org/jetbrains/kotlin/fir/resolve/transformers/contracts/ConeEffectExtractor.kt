@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.fir.declarations.FirContractDescriptionOwner
 import org.jetbrains.kotlin.fir.declarations.FirValueParameter
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
-import org.jetbrains.kotlin.fir.types.coneTypeSafe
 import org.jetbrains.kotlin.fir.types.type
 import org.jetbrains.kotlin.fir.visitors.FirDefaultVisitor
 
@@ -140,7 +139,7 @@ class ConeEffectExtractor(
     ): ConeContractDescriptionElement? {
         val declaration = thisReceiverExpression.calleeReference.boundSymbol?.fir ?: return null
         return if (declaration == owner) {
-            val type = thisReceiverExpression.typeRef.coneTypeSafe<ConeKotlinType>() ?: return null
+            val type = thisReceiverExpression.typeRef.type
             toValueParameterReference(type, -1, "this")
         } else {
             null
@@ -160,7 +159,7 @@ class ConeEffectExtractor(
 
     override fun visitTypeOperatorCall(typeOperatorCall: FirTypeOperatorCall, data: Nothing?): ConeContractDescriptionElement? {
         val arg = typeOperatorCall.argument.accept(this, data) as? ConeValueParameterReference ?: return null
-        val type = typeOperatorCall.conversionTypeRef.coneTypeSafe<ConeKotlinType>() ?: return null
+        val type = typeOperatorCall.conversionTypeRef.type
         val isNegated = typeOperatorCall.operation == FirOperation.NOT_IS
         return ConeIsInstancePredicate(arg, type, isNegated)
     }

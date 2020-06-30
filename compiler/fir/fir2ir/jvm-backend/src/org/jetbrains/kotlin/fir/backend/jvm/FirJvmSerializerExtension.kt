@@ -233,8 +233,8 @@ class FirJvmSerializerExtension @JvmOverloads constructor(
     private fun FirFunction<*>.needsInlineParameterNullCheckRequirement(): Boolean =
         this is FirSimpleFunction && isInline && !isSuspend && !isParamAssertionsDisabled &&
                 !Visibilities.isPrivate(visibility) &&
-                (valueParameters.any { it.returnTypeRef.coneTypeSafe<ConeKotlinType>()?.isBuiltinFunctionalType(session) == true } ||
-                        receiverTypeRef?.coneTypeSafe<ConeKotlinType>()?.isBuiltinFunctionalType(session) == true)
+                (valueParameters.any { it.returnTypeRef.type.isBuiltinFunctionalType(session) } ||
+                        receiverTypeRef?.type?.isBuiltinFunctionalType(session) == true)
 
     override fun serializeProperty(
         property: FirProperty,

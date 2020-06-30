@@ -428,7 +428,7 @@ class CallAndReferenceGenerator(
 
     private fun needSamConversion(argument: FirExpression, parameter: FirValueParameter): Boolean {
         // If the expected type is a built-in functional type, we don't need SAM conversion.
-        if (parameter.returnTypeRef.coneTypeSafe<ConeKotlinType>()?.isBuiltinFunctionalType(session) == true) {
+        if (parameter.returnTypeRef.type.isBuiltinFunctionalType(session)) {
             return false
         }
         // On the other hand, the actual type should be a functional type.

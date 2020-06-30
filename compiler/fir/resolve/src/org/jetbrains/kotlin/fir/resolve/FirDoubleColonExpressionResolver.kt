@@ -161,9 +161,8 @@ class FirDoubleColonExpressionResolver(
                 if (typeArgument == null) ConeStarProjection
                 else when (typeArgument) {
                     is FirTypeProjectionWithVariance -> {
-                        val coneType = typeArgument.typeRef.coneTypeSafe<ConeKotlinType>()
-                        if (coneType == null) ConeStarProjection
-                        else when (typeArgument.variance) {
+                        val coneType = typeArgument.typeRef.type
+                        when (typeArgument.variance) {
                             Variance.INVARIANT -> coneType
                             Variance.IN_VARIANCE -> ConeKotlinTypeProjectionIn(coneType)
                             Variance.OUT_VARIANCE -> ConeKotlinTypeProjectionOut(coneType)

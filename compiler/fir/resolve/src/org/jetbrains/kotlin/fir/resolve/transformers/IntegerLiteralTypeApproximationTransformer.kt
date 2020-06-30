@@ -160,7 +160,7 @@ class IntegerOperatorsTypeUpdater(private val approximator: IntegerLiteralTypeAp
         val function: FirCallableDeclaration<*> = functionCall.getOriginalFunction() ?: return functionCall.compose()
 
         if (function !is FirIntegerOperator) {
-            val expectedType = function.receiverTypeRef?.coneTypeSafe<ConeKotlinType>()
+            val expectedType = function.receiverTypeRef?.type
             return functionCall.transformExplicitReceiver(approximator, expectedType).compose()
         }
         // TODO: maybe unsafe?

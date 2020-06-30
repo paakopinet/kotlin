@@ -221,7 +221,7 @@ fun FirFunction<*>.constructFunctionalTypeRef(isSuspend: Boolean = false): FirRe
     }
     val rawReturnType = (this as FirTypedDeclaration).returnTypeRef.type
 
-    val functionalType = createFunctionalType(parameters, receiverTypeRef?.coneTypeSafe(), rawReturnType, isSuspend = isSuspend)
+    val functionalType = createFunctionalType(parameters, receiverTypeRef?.type, rawReturnType, isSuspend = isSuspend)
 
     return buildResolvedTypeRef {
         source = this@constructFunctionalTypeRef.source
@@ -465,7 +465,7 @@ private fun FirQualifiedAccess.expressionTypeOrUnitForAssignment(): ConeKotlinTy
 }
 
 fun FirAnnotationCall.getCorrespondingConstructorReferenceOrNull(session: FirSession): FirResolvedNamedReference? =
-    annotationTypeRef.coneTypeSafe<ConeKotlinType>()?.classId?.let {
+    annotationTypeRef.type.classId?.let {
         (session.firSymbolProvider.getClassLikeSymbolByFqName(it) as? FirRegularClassSymbol)?.fir
             ?.getPrimaryConstructorIfAny()
             ?.let { annotationConstructor ->

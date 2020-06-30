@@ -103,7 +103,7 @@ class FirDelegatedPropertyInferenceSession(
     private fun Candidate.addConstraintsForGetValueMethod(commonSystem: ConstraintSystemBuilder) {
         if (expectedType != null) {
             val accessor = symbol.fir as? FirSimpleFunction ?: return
-            val unsubstitutedReturnType = accessor.returnTypeRef.coneTypeSafe<ConeKotlinType>() ?: return
+            val unsubstitutedReturnType = accessor.returnTypeRef.type
 
             val substitutedReturnType = substitutor.substituteOrSelf(unsubstitutedReturnType)
             commonSystem.addSubtypeConstraint(substitutedReturnType, expectedType!!, SimpleConstraintSystemConstraintPosition)
@@ -115,7 +115,7 @@ class FirDelegatedPropertyInferenceSession(
     private fun Candidate.addConstraintsForSetValueMethod(commonSystem: ConstraintSystemBuilder) {
         if (expectedType != null) {
             val accessor = symbol.fir as? FirSimpleFunction ?: return
-            val unsubstitutedParameterType = accessor.valueParameters.getOrNull(2)?.returnTypeRef?.coneTypeSafe<ConeKotlinType>() ?: return
+            val unsubstitutedParameterType = accessor.valueParameters.getOrNull(2)?.returnTypeRef?.type ?: return
 
             val substitutedReturnType = substitutor.substituteOrSelf(unsubstitutedParameterType)
             commonSystem.addSubtypeConstraint(substitutedReturnType, expectedType!!, SimpleConstraintSystemConstraintPosition)

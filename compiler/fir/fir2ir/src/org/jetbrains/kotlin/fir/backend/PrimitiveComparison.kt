@@ -29,8 +29,8 @@ fun FirComparisonExpression.inferPrimitiveNumericComparisonInfo(): PrimitiveCone
     inferPrimitiveNumericComparisonInfo(left, right)
 
 fun inferPrimitiveNumericComparisonInfo(left: FirExpression, right: FirExpression): PrimitiveConeNumericComparisonInfo? {
-    val leftType = left.typeRef.coneTypeSafe<ConeKotlinType>() ?: return null
-    val rightType = right.typeRef.coneTypeSafe<ConeKotlinType>() ?: return null
+    val leftType = left.typeRef.type
+    val rightType = right.typeRef.type
     val leftPrimitiveOrNullableType = leftType.getPrimitiveTypeOrSupertype() ?: return null
     val rightPrimitiveOrNullableType = rightType.getPrimitiveTypeOrSupertype() ?: return null
     val leastCommonType = leastCommonPrimitiveNumericType(leftPrimitiveOrNullableType, rightPrimitiveOrNullableType)
@@ -62,7 +62,7 @@ private fun ConeKotlinType.getPrimitiveTypeOrSupertype(): ConeClassLikeType? =
     when {
         this is ConeTypeParameterType ->
             this.lookupTag.typeParameterSymbol.fir.bounds.firstNotNullResult {
-                it.coneTypeSafe<ConeKotlinType>()?.getPrimitiveTypeOrSupertype()
+                it.type.getPrimitiveTypeOrSupertype()
             }
         this is ConeClassLikeType && isPrimitiveNumberType() ->
             this

@@ -388,8 +388,8 @@ abstract class FirDataFlowAnalyzer<FLOW : Flow>(
     }
 
     private fun processEq(node: OperatorCallNode, leftOperand: FirExpression, rightOperand: FirExpression, operation: FirOperation) {
-        val leftIsNullable = leftOperand.coneType?.isMarkedNullable ?: return
-        val rightIsNullable = rightOperand.coneType?.isMarkedNullable ?: return
+        val leftIsNullable = leftOperand.coneType.isMarkedNullable
+        val rightIsNullable = rightOperand.coneType.isMarkedNullable
         // left == right && right not null -> left != null
         when {
             leftIsNullable && rightIsNullable -> return
@@ -638,8 +638,7 @@ abstract class FirDataFlowAnalyzer<FLOW : Flow>(
         }
 
         safeCall.receiver.let { receiver ->
-            val type = receiver.coneType
-                ?.takeIf { it.isMarkedNullable }
+            val type = receiver.coneType.takeIf { it.isMarkedNullable }
                 ?.withNullability(ConeNullability.NOT_NULL)
                 ?: return@let
 

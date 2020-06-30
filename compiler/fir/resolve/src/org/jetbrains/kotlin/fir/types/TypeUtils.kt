@@ -71,7 +71,7 @@ fun ConeKotlinType.canHaveUndefinedNullability(): Boolean {
 
 private fun ConeTypeParameterType.hasNotNullUpperBound(): Boolean {
     return lookupTag.typeParameterSymbol.fir.bounds.any {
-        val boundType = it.type
+        val boundType = it.coneType
         if (boundType is ConeTypeParameterType) {
             boundType.hasNotNullUpperBound()
         } else {
@@ -190,7 +190,7 @@ internal fun FirTypeProjection.toConeTypeProjection(): ConeTypeProjection =
     when (this) {
         is FirStarProjection -> ConeStarProjection
         is FirTypeProjectionWithVariance -> {
-            val type = typeRef.type
+            val type = typeRef.coneType
             type.toTypeProjection(this.variance)
         }
         else -> error("!")

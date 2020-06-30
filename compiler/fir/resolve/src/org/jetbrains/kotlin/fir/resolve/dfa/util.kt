@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirAccessorSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
-import org.jetbrains.kotlin.fir.types.type
+import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -89,7 +89,7 @@ internal fun ConeConstantReference.toOperation(): Operation = when (this) {
 
 @DfaInternals
 internal val FirExpression.coneType: ConeKotlinType
-    get() = typeRef.type
+    get() = typeRef.coneType
 
 @DfaInternals
 internal val FirElement.symbol: AbstractFirBasedSymbol<*>?

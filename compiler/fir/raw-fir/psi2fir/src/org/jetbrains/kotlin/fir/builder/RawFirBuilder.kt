@@ -486,7 +486,7 @@ class RawFirBuilder(
                     delegatedSuperTypeRef = buildResolvedTypeRef {
                         type = ConeClassLikeTypeImpl(
                             implicitEnumType.type.lookupTag,
-                            delegatedSelfTypeRef?.type?.let { arrayOf(it) } ?: emptyArray(),
+                            delegatedSelfTypeRef?.coneType?.let { arrayOf(it) } ?: emptyArray(),
                             isNullable = false,
                         )
                     }

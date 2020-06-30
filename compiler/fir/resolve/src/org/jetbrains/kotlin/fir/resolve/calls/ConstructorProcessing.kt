@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.coneTypeUnsafe
-import org.jetbrains.kotlin.fir.types.type
+import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.name.Name
 
 private operator fun <T> Pair<T, *>?.component1() = this?.first
@@ -216,10 +216,10 @@ private class TypeAliasConstructorsSubstitutor<F : FirFunction<F>>(
 ) {
     fun substitute(baseFunction: F): F {
         val typeParameters = typeAliasSymbol.fir.typeParameters
-        val newReturnType = baseFunction.returnTypeRef.type.let(substitutor::substituteOrNull)
+        val newReturnType = baseFunction.returnTypeRef.coneType.let(substitutor::substituteOrNull)
 
         val newParameterTypes = baseFunction.valueParameters.map { valueParameter ->
-            valueParameter.returnTypeRef.type.let(substitutor::substituteOrNull)
+            valueParameter.returnTypeRef.coneType.let(substitutor::substituteOrNull)
         }
 
         if (newReturnType == null && newParameterTypes.all { it == null }) return baseFunction

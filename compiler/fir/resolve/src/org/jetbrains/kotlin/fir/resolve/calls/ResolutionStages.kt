@@ -94,7 +94,7 @@ internal sealed class CheckReceivers : ResolutionStage() {
         override fun Candidate.getReceiverType(): ConeKotlinType? {
             val callableSymbol = symbol as? FirCallableSymbol<*> ?: return null
             val callable = callableSymbol.fir
-            val receiverType = callable.receiverTypeRef?.type
+            val receiverType = callable.receiverTypeRef?.coneType
             if (receiverType != null) return receiverType
             val returnTypeRef = callable.returnTypeRef as? FirResolvedTypeRef ?: return null
             if (!returnTypeRef.isExtensionFunctionType(bodyResolveComponents.session)) return null
@@ -244,7 +244,7 @@ internal object CheckCallableReferenceExpectedType : CheckerStage() {
             }
 
             val declarationReceiverType: ConeKotlinType? =
-                (fir as? FirCallableMemberDeclaration<*>)?.receiverTypeRef?.type
+                (fir as? FirCallableMemberDeclaration<*>)?.receiverTypeRef?.coneType
                     ?.let(candidate.substitutor::substituteOrSelf)
 
             if (resultingReceiverType != null && declarationReceiverType != null) {
@@ -296,7 +296,7 @@ private fun FirSession.createKFunctionType(
     }
     for ((index, valueParameter) in function.valueParameters.withIndex()) {
         if (expectedParameterNumber == null || index < expectedParameterNumber || valueParameter.defaultValue == null) {
-            parameterTypes += valueParameter.returnTypeRef.type
+            parameterTypes += valueParameter.returnTypeRef.coneType
         }
     }
 
@@ -531,7 +531,7 @@ internal object PostponedVariablesInitializerResolutionStage : ResolutionStage()
         if (candidate.typeArgumentMapping is TypeArgumentMapping.Mapped) return
         for (parameter in argumentMapping.values) {
             if (!parameter.hasBuilderInferenceMarker()) continue
-            val type = parameter.returnTypeRef.type
+            val type = parameter.returnTypeRef.coneType
             val receiverType = type.receiverType(callInfo.session) ?: continue
 
             for (freshVariable in candidate.freshVariables) {

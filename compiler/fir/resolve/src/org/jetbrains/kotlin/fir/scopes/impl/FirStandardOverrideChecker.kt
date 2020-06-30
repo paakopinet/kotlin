@@ -47,7 +47,7 @@ class FirStandardOverrideChecker(session: FirSession) : FirAbstractOverrideCheck
     }
 
     override fun isEqualTypes(candidateTypeRef: FirTypeRef, baseTypeRef: FirTypeRef, substitutor: ConeSubstitutor) =
-        isEqualTypes(candidateTypeRef.type, baseTypeRef.type, substitutor)
+        isEqualTypes(candidateTypeRef.coneType, baseTypeRef.coneType, substitutor)
 
 
     /**
@@ -61,13 +61,13 @@ class FirStandardOverrideChecker(session: FirSession) : FirAbstractOverrideCheck
         baseTypeParameter: FirTypeParameter,
         substitutor: ConeSubstitutor
     ): Boolean {
-        val substitutedOverrideType = substitutor.substituteOrSelf(overrideBound.type)
-        val substitutedBaseType = substitutor.substituteOrSelf(baseBound.type)
+        val substitutedOverrideType = substitutor.substituteOrSelf(overrideBound.coneType)
+        val substitutedBaseType = substitutor.substituteOrSelf(baseBound.coneType)
 
         if (isEqualTypes(substitutedOverrideType, substitutedBaseType)) return true
 
-        return overrideTypeParameter.bounds.any { bound -> isEqualTypes(bound.type, substitutedBaseType, substitutor) } &&
-                baseTypeParameter.bounds.any { bound -> isEqualTypes(bound.type, substitutedOverrideType, substitutor) }
+        return overrideTypeParameter.bounds.any { bound -> isEqualTypes(bound.coneType, substitutedBaseType, substitutor) } &&
+                baseTypeParameter.bounds.any { bound -> isEqualTypes(bound.coneType, substitutedOverrideType, substitutor) }
     }
 
     private fun isCompatibleTypeParameters(

@@ -292,7 +292,7 @@ class CallAndReferenceGenerator(
     }
 
     internal fun convertToGetObject(qualifier: FirResolvedQualifier, callableReferenceMode: Boolean): IrExpression? {
-        val classSymbol = (qualifier.typeRef.type as? ConeClassLikeType)?.lookupTag?.toSymbol(session)
+        val classSymbol = (qualifier.typeRef.coneType as? ConeClassLikeType)?.lookupTag?.toSymbol(session)
         if (callableReferenceMode && classSymbol is FirRegularClassSymbol) {
             if (classSymbol.classId != qualifier.classId) {
                 return null
@@ -427,7 +427,7 @@ class CallAndReferenceGenerator(
 
     private fun needSamConversion(argument: FirExpression, parameter: FirValueParameter): Boolean {
         // If the expected type is a built-in functional type, we don't need SAM conversion.
-        if (parameter.returnTypeRef.type.isBuiltinFunctionalType(session)) {
+        if (parameter.returnTypeRef.coneType.isBuiltinFunctionalType(session)) {
             return false
         }
         // On the other hand, the actual type should be a functional type.

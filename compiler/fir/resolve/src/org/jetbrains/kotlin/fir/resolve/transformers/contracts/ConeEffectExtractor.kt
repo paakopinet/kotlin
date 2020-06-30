@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.fir.declarations.FirContractDescriptionOwner
 import org.jetbrains.kotlin.fir.declarations.FirValueParameter
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
-import org.jetbrains.kotlin.fir.types.type
+import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.fir.visitors.FirDefaultVisitor
 
 class ConeEffectExtractor(
@@ -115,7 +115,7 @@ class ConeEffectExtractor(
         val symbol = qualifiedAccessExpression.toResolvedCallableSymbol() ?: return null
         val parameter = symbol.fir as? FirValueParameter ?: return null
         val index = valueParameters.indexOf(parameter).takeUnless { it < 0 } ?: return null
-        val type = parameter.returnTypeRef.type
+        val type = parameter.returnTypeRef.coneType
 
         val name = parameter.name.asString()
         return toValueParameterReference(type, index, name)
@@ -139,7 +139,7 @@ class ConeEffectExtractor(
     ): ConeContractDescriptionElement? {
         val declaration = thisReceiverExpression.calleeReference.boundSymbol?.fir ?: return null
         return if (declaration == owner) {
-            val type = thisReceiverExpression.typeRef.type
+            val type = thisReceiverExpression.typeRef.coneType
             toValueParameterReference(type, -1, "this")
         } else {
             null
@@ -159,7 +159,7 @@ class ConeEffectExtractor(
 
     override fun visitTypeOperatorCall(typeOperatorCall: FirTypeOperatorCall, data: Nothing?): ConeContractDescriptionElement? {
         val arg = typeOperatorCall.argument.accept(this, data) as? ConeValueParameterReference ?: return null
-        val type = typeOperatorCall.conversionTypeRef.type
+        val type = typeOperatorCall.conversionTypeRef.coneType
         val isNegated = typeOperatorCall.operation == FirOperation.NOT_IS
         return ConeIsInstancePredicate(arg, type, isNegated)
     }

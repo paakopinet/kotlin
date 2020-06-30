@@ -263,7 +263,7 @@ abstract class FirDataFlowAnalyzer<FLOW : Flow>(
     fun exitTypeOperatorCall(typeOperatorCall: FirTypeOperatorCall) {
         val node = graphBuilder.exitTypeOperatorCall(typeOperatorCall).mergeIncomingFlow()
         if (typeOperatorCall.operation !in FirOperation.TYPES) return
-        val type = typeOperatorCall.conversionTypeRef.type
+        val type = typeOperatorCall.conversionTypeRef.coneType
         val operandVariable = variableStorage.getOrCreateVariable(node.previousFlow, typeOperatorCall.argument)
         val flow = node.flow
 
@@ -836,7 +836,7 @@ abstract class FirDataFlowAnalyzer<FLOW : Flow>(
 
         if (isAssignment) {
             if (initializer is FirConstExpression<*> && initializer.kind == FirConstKind.Null) return
-            flow.addTypeStatement(propertyVariable typeEq initializer.typeRef.type)
+            flow.addTypeStatement(propertyVariable typeEq initializer.typeRef.coneType)
         }
     }
 

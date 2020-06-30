@@ -140,8 +140,8 @@ class FirTypeIntersectionScope private constructor(
 
         val substitutor = buildSubstitutorForOverridesCheck(aFir, bFir) ?: return false
 
-        val aReturnType = a.fir.returnTypeRef.type.let(substitutor::substituteOrSelf)
-        val bReturnType = b.fir.returnTypeRef.type
+        val aReturnType = a.fir.returnTypeRef.coneType.let(substitutor::substituteOrSelf)
+        val bReturnType = b.fir.returnTypeRef.coneType
 
         if (aFir is FirSimpleFunction) {
             require(bFir is FirSimpleFunction) { "b is " + b.javaClass }

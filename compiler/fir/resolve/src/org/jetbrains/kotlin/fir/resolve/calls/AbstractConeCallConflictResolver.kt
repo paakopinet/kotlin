@@ -109,7 +109,7 @@ abstract class AbstractConeCallConflictResolver(
         return FlatSignature(
             call,
             (variable as? FirProperty)?.typeParameters?.map { it.symbol }.orEmpty(),
-            listOfNotNull(variable.receiverTypeRef?.type),
+            listOfNotNull(variable.receiverTypeRef?.coneType),
             variable.receiverTypeRef != null,
             false,
             0,
@@ -146,7 +146,7 @@ abstract class AbstractConeCallConflictResolver(
     }
 
     private fun FirValueParameter.argumentType(): ConeKotlinType {
-        val type = returnTypeRef.type
+        val type = returnTypeRef.coneType
         if (isVararg) return type.arrayElementType()!!
         return type
     }
@@ -155,7 +155,7 @@ abstract class AbstractConeCallConflictResolver(
         call: Candidate,
         function: FirFunction<*>
     ): List<ConeKotlinType> {
-        return listOfNotNull(function.receiverTypeRef?.type) +
+        return listOfNotNull(function.receiverTypeRef?.coneType) +
                 (call.resultingTypeForCallableReference?.typeArguments?.map { it as ConeKotlinType }
                     ?: call.argumentMapping?.map { it.value.argumentType() }.orEmpty())
     }

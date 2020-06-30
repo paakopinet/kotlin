@@ -197,7 +197,7 @@ private class FirSupertypeResolverVisitor(
     ) {
         if (!visited.add(classLikeDeclaration)) return
         val supertypes =
-            resolveSpecificClassLikeSupertypes(classLikeDeclaration, supertypeRefs).map { it.type }
+            resolveSpecificClassLikeSupertypes(classLikeDeclaration, supertypeRefs).map { it.coneType }
 
         for (supertype in supertypes) {
             if (supertype !is ConeClassLikeType) continue

@@ -70,9 +70,9 @@ class FirJvmClassCodegen(
         conf: TypeApproximatorConfiguration = TypeApproximatorConfiguration.PublicDeclaration
     ): FirTypeRef {
         val approximatedType = if (toSuper)
-            approximator.approximateToSuperType(type, conf)
+            approximator.approximateToSuperType(coneType, conf)
         else
-            approximator.approximateToSubType(type, conf)
+            approximator.approximateToSubType(coneType, conf)
         return withReplacedConeType(approximatedType as? ConeKotlinType)
     }
 

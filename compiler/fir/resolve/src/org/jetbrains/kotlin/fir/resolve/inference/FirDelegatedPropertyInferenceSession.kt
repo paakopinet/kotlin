@@ -103,7 +103,7 @@ class FirDelegatedPropertyInferenceSession(
     private fun Candidate.addConstraintsForGetValueMethod(commonSystem: ConstraintSystemBuilder) {
         if (expectedType != null) {
             val accessor = symbol.fir as? FirSimpleFunction ?: return
-            val unsubstitutedReturnType = accessor.returnTypeRef.type
+            val unsubstitutedReturnType = accessor.returnTypeRef.coneType
 
             val substitutedReturnType = substitutor.substituteOrSelf(unsubstitutedReturnType)
             commonSystem.addSubtypeConstraint(substitutedReturnType, expectedType!!, SimpleConstraintSystemConstraintPosition)
@@ -115,7 +115,7 @@ class FirDelegatedPropertyInferenceSession(
     private fun Candidate.addConstraintsForSetValueMethod(commonSystem: ConstraintSystemBuilder) {
         if (expectedType != null) {
             val accessor = symbol.fir as? FirSimpleFunction ?: return
-            val unsubstitutedParameterType = accessor.valueParameters.getOrNull(2)?.returnTypeRef?.type ?: return
+            val unsubstitutedParameterType = accessor.valueParameters.getOrNull(2)?.returnTypeRef?.coneType ?: return
 
             val substitutedReturnType = substitutor.substituteOrSelf(unsubstitutedParameterType)
             commonSystem.addSubtypeConstraint(substitutedReturnType, expectedType!!, SimpleConstraintSystemConstraintPosition)
@@ -125,14 +125,14 @@ class FirDelegatedPropertyInferenceSession(
     }
 
     private fun Candidate.addConstraintForThis(commonSystem: ConstraintSystemBuilder) {
-        val typeOfThis: ConeKotlinType = property.receiverTypeRef?.type
+        val typeOfThis: ConeKotlinType = property.receiverTypeRef?.coneType
             ?: when (val container = components.container) {
                 is FirRegularClass -> container.defaultType()
                 is FirAnonymousObject -> container.defaultType()
                 else -> null
             } ?: components.session.builtinTypes.nullableNothingType.type
         val valueParameterForThis = (symbol as? FirFunctionSymbol<*>)?.fir?.valueParameters?.firstOrNull() ?: return
-        val substitutedType = substitutor.substituteOrSelf(valueParameterForThis.returnTypeRef.type)
+        val substitutedType = substitutor.substituteOrSelf(valueParameterForThis.returnTypeRef.coneType)
         commonSystem.addSubtypeConstraint(typeOfThis, substitutedType, SimpleConstraintSystemConstraintPosition)
     }
 

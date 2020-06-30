@@ -64,7 +64,7 @@ object FirExposedVisibilityChecker : FirMemberDeclarationChecker() {
         val classVisibility = declaration.firEffectiveVisibility(declaration.session)
         for (parameter in declaration.typeParameters) {
             for (bound in parameter.symbol.fir.bounds) {
-                val restricting = bound.type.leastPermissiveDescriptor(declaration.session, classVisibility)
+                val restricting = bound.coneType.leastPermissiveDescriptor(declaration.session, classVisibility)
                 if (restricting != null) {
                     reporter.reportExposure(
                         FirErrors.EXPOSED_TYPE_PARAMETER_BOUND,
@@ -96,7 +96,7 @@ object FirExposedVisibilityChecker : FirMemberDeclarationChecker() {
     private fun checkFunction(declaration: FirFunction<*>, reporter: DiagnosticReporter) {
         val functionVisibility = (declaration as FirMemberDeclaration).firEffectiveVisibility(declaration.session)
         if (declaration !is FirConstructor) {
-            val restricting = declaration.returnTypeRef.type
+            val restricting = declaration.returnTypeRef.coneType
                 .leastPermissiveDescriptor(declaration.session, functionVisibility)
             if (restricting != null) {
                 reporter.reportExposure(
@@ -148,7 +148,7 @@ object FirExposedVisibilityChecker : FirMemberDeclarationChecker() {
         memberDeclaration: FirCallableMemberDeclaration<*>?, reporter: DiagnosticReporter
     ) {
         if (typeRef == null || memberDeclaration == null) return
-        val receiverParameterType = typeRef.type
+        val receiverParameterType = typeRef.coneType
         val memberVisibility = memberDeclaration.firEffectiveVisibility(memberDeclaration.session)
         val restricting = receiverParameterType.leastPermissiveDescriptor(memberDeclaration.session, memberVisibility)
         if (restricting != null) {

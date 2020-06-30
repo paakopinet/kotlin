@@ -257,7 +257,7 @@ internal class ClassMemberGenerator(
         val firDispatchReceiver = dispatchReceiver
         return convertWithOffsets { startOffset, endOffset ->
             val irConstructorSymbol = declarationStorage.getIrFunctionSymbol(constructorSymbol) as IrConstructorSymbol
-            val typeArguments = constructedTypeRef.type.fullyExpandedType(session).typeArguments
+            val typeArguments = constructedTypeRef.coneType.fullyExpandedType(session).typeArguments
             val constructor = constructorSymbol.fir
             if (constructor.isFromEnumClass || constructor.returnTypeRef.isEnum) {
                 IrEnumConstructorCallImpl(

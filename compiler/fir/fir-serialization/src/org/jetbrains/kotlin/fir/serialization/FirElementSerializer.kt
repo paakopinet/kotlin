@@ -488,7 +488,7 @@ class FirElementSerializer private constructor(
         }
 
         if (parameter.isVararg) {
-            val varargElementType = parameter.returnTypeRef.type.varargElementType(session)
+            val varargElementType = parameter.returnTypeRef.coneType.varargElementType(session)
             if (useTypeTable()) {
                 builder.varargElementTypeId = typeId(varargElementType)
             } else {
@@ -542,7 +542,7 @@ class FirElementSerializer private constructor(
     fun typeId(type: ConeKotlinType): Int = typeTable[typeProto(type)]
 
     internal fun typeProto(typeRef: FirTypeRef): ProtoBuf.Type.Builder {
-        return typeProto(typeRef.type)
+        return typeProto(typeRef.coneType)
     }
 
     internal fun typeProto(type: ConeKotlinType): ProtoBuf.Type.Builder {

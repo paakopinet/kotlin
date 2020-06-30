@@ -201,7 +201,7 @@ private class TowerScopeLevelProcessor(
             val extensionReceiverType = explicitReceiver?.typeRef?.coneTypeSafe()
                 ?: implicitExtensionReceiverValue?.type as? ConeClassLikeType
             if (extensionReceiverType != null) {
-                val declarationReceiverType = (symbol as? FirCallableSymbol<*>)?.fir?.receiverTypeRef?.type
+                val declarationReceiverType = (symbol as? FirCallableSymbol<*>)?.fir?.receiverTypeRef?.coneType
                 if (declarationReceiverType is ConeClassLikeType) {
                     if (!AbstractTypeChecker.isSubtypeOf(
                             candidateFactory.bodyResolveComponents.inferenceComponents.ctx,

@@ -120,7 +120,7 @@ class FirClassSubstitutionScope(
 
         val (newTypeParameters, newReceiverType, newReturnType, newSubstitutor) = createSubstitutedData(member)
         val newParameterTypes = member.valueParameters.map {
-            it.returnTypeRef.type.substitute(newSubstitutor)
+            it.returnTypeRef.coneType.substitute(newSubstitutor)
         }
 
         if (newReceiverType == null && newReturnType == null && newParameterTypes.all { it == null } &&
@@ -152,7 +152,7 @@ class FirClassSubstitutionScope(
 
         val (newTypeParameters, _, newReturnType, newSubstitutor) = createSubstitutedData(constructor)
         val newParameterTypes = constructor.valueParameters.map {
-            it.returnTypeRef.type.substitute(newSubstitutor)
+            it.returnTypeRef.coneType.substitute(newSubstitutor)
         }
 
         if (newReturnType == null && newParameterTypes.all { it == null } && newTypeParameters === constructor.typeParameters) {
@@ -201,7 +201,7 @@ class FirClassSubstitutionScope(
             member as FirTypeParameterRefsOwner
         )
 
-        val receiverType = member.receiverTypeRef?.type
+        val receiverType = member.receiverTypeRef?.coneType
         val newReceiverType = receiverType?.substitute(substitutor)
 
         val returnType = typeCalculator.tryCalculateReturnType(member).type
@@ -240,7 +240,7 @@ class FirClassSubstitutionScope(
             if (newTypeParameter == null) continue
             val original = oldTypeParameter as FirTypeParameter
             for (boundTypeRef in original.bounds) {
-                val typeForBound = boundTypeRef.type
+                val typeForBound = boundTypeRef.coneType
                 val substitutedBound = typeForBound.substitute()
                 newTypeParameter.bounds +=
                     buildResolvedTypeRef {
@@ -281,7 +281,7 @@ class FirClassSubstitutionScope(
         val newReturnType = returnType.substitute()
 
         val newParameterTypes = member.getter.valueParameters.map {
-            it.returnTypeRef.type.substitute()
+            it.returnTypeRef.coneType.substitute()
         }
 
         if (newReturnType == null && newParameterTypes.all { it == null }) {

@@ -67,7 +67,7 @@ fun createSubstitution(
             else /* StarProjection */ -> {
                 ConeTypeIntersector.intersectTypes(
                     session.typeContext,
-                    typeParameterSymbol.fir.bounds.map { it.type }
+                    typeParameterSymbol.fir.bounds.map { it.coneType }
                 )
             }
         }

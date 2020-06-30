@@ -103,7 +103,7 @@ class FirTypeResolverImpl(private val session: FirSession) : FirTypeResolver {
 
     private fun createFunctionalType(typeRef: FirFunctionTypeRef): ConeClassLikeType {
         val parameters =
-            listOfNotNull((typeRef.receiverTypeRef as FirResolvedTypeRef?)?.type) +
+            listOfNotNull(typeRef.receiverTypeRef?.type) +
                     typeRef.valueParameters.map { it.returnTypeRef.type } +
                     listOf(typeRef.returnTypeRef.type)
         val classId = if (typeRef.isSuspend) {

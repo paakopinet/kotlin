@@ -477,7 +477,7 @@ interface ConeTypeContext : TypeSystemContext, TypeSystemOptimizationContext, Ty
 
     override fun TypeParameterMarker.getRepresentativeUpperBound(): KotlinTypeMarker {
         require(this is FirTypeParameterSymbol)
-        return this.fir.bounds.getOrNull(0)?.let { (it as? FirResolvedTypeRef)?.type }
+        return this.fir.bounds.getOrNull(0)?.let { it.type }
             ?: session.builtinTypes.nullableAnyType.type
     }
 

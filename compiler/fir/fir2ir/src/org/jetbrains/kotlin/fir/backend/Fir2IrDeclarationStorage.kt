@@ -85,7 +85,7 @@ class Fir2IrDeclarationStorage(
         return irFunction.valueParameters.size == firFunction.valueParameters.size &&
                 irFunction.valueParameters.zip(firFunction.valueParameters).all { (irParameter, firParameter) ->
                     val irType = irParameter.type
-                    val firType = (firParameter.returnTypeRef as FirResolvedTypeRef).type
+                    val firType = firParameter.returnTypeRef.type
                     if (irType is IrSimpleType) {
                         when (val irClassifierSymbol = irType.classifier) {
                             is IrTypeParameterSymbol -> {

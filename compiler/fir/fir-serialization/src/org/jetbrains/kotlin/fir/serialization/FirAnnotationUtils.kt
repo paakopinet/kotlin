@@ -15,12 +15,12 @@ import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.symbols.ConeClassLikeLookupTag
 import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
-import org.jetbrains.kotlin.fir.types.FirResolvedTypeRef
+import org.jetbrains.kotlin.fir.types.type
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 
 private fun FirAnnotationCall.toAnnotationLookupTag(): ConeClassLikeLookupTag =
-    ((annotationTypeRef as FirResolvedTypeRef).type as ConeClassLikeType).lookupTag
+    (annotationTypeRef.type as ConeClassLikeType).lookupTag
 
 internal fun FirAnnotationCall.toAnnotationClassId(): ClassId =
     toAnnotationLookupTag().classId

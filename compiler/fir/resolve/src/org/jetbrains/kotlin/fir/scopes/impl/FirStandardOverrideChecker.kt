@@ -47,7 +47,7 @@ class FirStandardOverrideChecker(session: FirSession) : FirAbstractOverrideCheck
     }
 
     override fun isEqualTypes(candidateTypeRef: FirTypeRef, baseTypeRef: FirTypeRef, substitutor: ConeSubstitutor) =
-        isEqualTypes((candidateTypeRef as FirResolvedTypeRef).type, (baseTypeRef as FirResolvedTypeRef).type, substitutor)
+        isEqualTypes(candidateTypeRef.type, baseTypeRef.type, substitutor)
 
 
     /**

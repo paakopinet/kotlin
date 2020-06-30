@@ -542,7 +542,7 @@ class FirElementSerializer private constructor(
     fun typeId(type: ConeKotlinType): Int = typeTable[typeProto(type)]
 
     internal fun typeProto(typeRef: FirTypeRef): ProtoBuf.Type.Builder {
-        return typeProto((typeRef as FirResolvedTypeRef).type)
+        return typeProto(typeRef.type)
     }
 
     internal fun typeProto(type: ConeKotlinType): ProtoBuf.Type.Builder {

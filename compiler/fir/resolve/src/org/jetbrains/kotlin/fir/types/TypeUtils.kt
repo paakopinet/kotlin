@@ -190,7 +190,7 @@ internal fun FirTypeProjection.toConeTypeProjection(): ConeTypeProjection =
     when (this) {
         is FirStarProjection -> ConeStarProjection
         is FirTypeProjectionWithVariance -> {
-            val type = (this.typeRef as FirResolvedTypeRef).type
+            val type = typeRef.type
             type.toTypeProjection(this.variance)
         }
         else -> error("!")

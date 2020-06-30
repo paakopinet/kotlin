@@ -132,7 +132,7 @@ class FirDoubleColonExpressionResolver(
     }
 
     private fun resolveExpressionOnLHS(expression: FirExpression): DoubleColonLHS.Expression? {
-        val type = (expression.typeRef as? FirResolvedTypeRef)?.type ?: return null
+        val type = expression.typeRef.type
 
         if (expression is FirResolvedQualifier) {
             val firClass = expression.expandedRegularClassIfAny() ?: return null

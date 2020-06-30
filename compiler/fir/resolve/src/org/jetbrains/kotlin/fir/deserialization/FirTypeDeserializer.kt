@@ -99,7 +99,7 @@ class FirTypeDeserializer(
     fun type(proto: ProtoBuf.Type, attributes: ConeAttributes): ConeKotlinType {
         if (proto.hasFlexibleTypeCapabilitiesId()) {
             val lowerBound = simpleType(proto, attributes)
-            val upperBound = simpleType(proto.flexibleUpperBound(typeTable)!!, ConeAttributes.Empty)
+            val upperBound = simpleType(proto.flexibleUpperBound(typeTable)!!, attributes)
             return ConeFlexibleType(lowerBound!!, upperBound!!)
             //c.components.flexibleTypeDeserializer.create(proto, id, lowerBound, upperBound)
         }
